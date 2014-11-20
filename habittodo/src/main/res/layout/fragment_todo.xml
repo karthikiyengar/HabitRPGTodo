@@ -18,4 +18,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/listViewTodo" android:layout_below="@+id/btnAdd" android:layout_centerHorizontal="true"/>
+    <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Sync"
+            android:id="@+id/btnSync"
+            android:layout_alignTop="@+id/btnAdd" android:layout_toLeftOf="@+id/btnAdd"
+            android:layout_toStartOf="@+id/btnAdd"/>
 </RelativeLayout>

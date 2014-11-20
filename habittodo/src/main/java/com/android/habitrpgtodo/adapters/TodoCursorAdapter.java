@@ -46,7 +46,7 @@ public class TodoCursorAdapter extends CursorAdapter {
 
         /* Get stuff from cursor */
         id = cursor.getString(0);
-        title = cursor.getString(1);
+        title = cursor.getString(2);
         completed = Boolean.parseBoolean(cursor.getString(2));
 
 

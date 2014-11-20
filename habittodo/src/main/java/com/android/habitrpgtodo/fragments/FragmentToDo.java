@@ -20,7 +20,6 @@ import com.android.habitrpgtodo.database.DBHandler;
 import com.android.habitrpgtodo.database.Record;
 import com.android.habitrpgtodo.provider.MyContentProvider;
 
-
 import java.util.Random;
 
 /**
@@ -39,7 +38,18 @@ public class FragmentToDo extends Fragment implements LoaderManager.LoaderCallba
 
         rootView = inflater.inflate(R.layout.fragment_todo, container, false);
         Button btnAdd = (Button) rootView.findViewById(R.id.btnAdd);
+        Button btnSync = (Button) rootView.findViewById(R.id.btnSync);
         getLoaderManager().initLoader(URL_LOADER, null, this);
+
+        //SYNC BUTTON!
+
+        btnSync.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DBHandler.getInstance(getActivity()).sync();
+            }
+        });
+
 
         //ADD BUTTON!
 
@@ -52,7 +62,6 @@ public class FragmentToDo extends Fragment implements LoaderManager.LoaderCallba
                 Integer num = t.nextInt(100);
                 Record record = new Record(num.toString(), taskName.getText().toString(), false);
                 dbH.addTask(record, MyContentProvider.TODO_TABLE_VALUE);
-                dbH.select(getActivity());
             }
         });
 
@@ -83,7 +92,7 @@ public class FragmentToDo extends Fragment implements LoaderManager.LoaderCallba
         // Returns a new CursorLoader
         return new CursorLoader(
                 getActivity(),   // Parent activity context
-                MyContentProvider.TODO_URI,        // Table to query
+                MyContentProvider.TODO_REMOTE_URI,        // Table to query
                 null,     // Projection to return
                 null,            // No selection clause
                 null,            // No selection arguments

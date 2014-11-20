@@ -3,10 +3,10 @@ package com.android.habitrpgtodo.database;
 /**
  * Created by karthik on 11/16/14.
  */
+
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
@@ -23,7 +23,6 @@ public class DBHandler extends SQLiteOpenHelper {
     private SQLiteDatabase db;
     private static DBHandler sInstance;
     private static final String DATABASE_NAME = "TestDB";
-    private static final String DATABASE_TABLE = "TEST";
     private static final int DATABASE_VERSION = 1;
     private Context context;
 
@@ -38,7 +37,6 @@ public class DBHandler extends SQLiteOpenHelper {
 
     private DBHandler(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
-        Log.d("App", "In Here before CR");
         myCR = context.getContentResolver();
     }
 
@@ -83,9 +81,6 @@ public class DBHandler extends SQLiteOpenHelper {
                 throw new IllegalArgumentException("Unknown Table");
         }
         myCR.delete(uri, null, null);
-
-        //To delete entire table
-        //myCR.delete(MyContentProvider.TODO_URI, null, null);
     }
 
 
@@ -104,16 +99,8 @@ public class DBHandler extends SQLiteOpenHelper {
 
     }
 
-    public Cursor select(Context context) {
-        Cursor cursor = myCR.query(MyContentProvider.TODO_URI, null, null, null, null);
-        if (cursor.moveToFirst()){
-            while(!cursor.isAfterLast()){
-                String data = cursor.getString(cursor.getColumnIndex("NAME"));
-                Log.d("App", data);
-                cursor.moveToNext();
-            }
-        }
-        cursor.close();
-        return cursor;
+
+    public void sync() {
+
     }
 }

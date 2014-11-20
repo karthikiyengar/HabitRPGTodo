@@ -12,7 +12,10 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.util.Log;
+import com.android.habitrpgtodo.async.AsyncPostTodo;
 import com.android.habitrpgtodo.database.DBHandler;
+
+import java.util.concurrent.ExecutionException;
 
 
 /**
@@ -23,16 +26,20 @@ public class MyContentProvider extends ContentProvider {
 
     private static final DBHandler myDB = null;
 
-    private static final String AUTHORITY = "com.android.habitrpgtodo.provider.MyContentProvider";
+    public static final String AUTHORITY = "com.android.habitrpgtodo.provider.MyContentProvider";
 
 
     private static final String TODO_TABLE = "Test";
     private static final String COMPLETED_TABLE = "Test_Completed";
+    private static final String TODO_REMOTE_TABLE = "Todo_Remote";
+    private static final String COMPLETED_REMOTE_TABLE = "Completed_Remote";
+
 
 
     public static final Uri TODO_URI = Uri.parse("content://" + AUTHORITY + "/" + TODO_TABLE);
+    public static final Uri TODO_REMOTE_URI = Uri.parse("content://" + AUTHORITY + "/" + TODO_REMOTE_TABLE);
     public static final Uri COMPLETED_URI = Uri.parse("content://" + AUTHORITY + "/" + COMPLETED_TABLE);
-
+    public static final Uri TODO_COMPLETED_URI = Uri.parse("content://" + AUTHORITY + "/" + COMPLETED_REMOTE_TABLE);
 
     private static final UriMatcher sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 
@@ -40,11 +47,17 @@ public class MyContentProvider extends ContentProvider {
     public static final int COMPLETED_TABLE_VALUE = 2;
     public static final int TODO_TABLE_ROW_VALUE = 3;
     public static final int COMPLETED_TABLE_ROW_VALUE = 4;
+    public static final int TODO_REMOTE_VALUE = 5;
+    public static final int COMPLETED_REMOTE_VALUE = 6;
+    public static final int TODO_REMOTE = 7;
+    public static final int COMPLETED_REMOTE = 8;
 
     static {
         sUriMatcher.addURI(AUTHORITY, TODO_TABLE, TODO_TABLE_VALUE);
+        sUriMatcher.addURI(AUTHORITY, TODO_REMOTE_TABLE, TODO_REMOTE_VALUE);
         sUriMatcher.addURI(AUTHORITY, TODO_TABLE + "/#", TODO_TABLE_ROW_VALUE);
         sUriMatcher.addURI(AUTHORITY, COMPLETED_TABLE, COMPLETED_TABLE_VALUE);
+        sUriMatcher.addURI(AUTHORITY, COMPLETED_REMOTE_TABLE, COMPLETED_REMOTE_VALUE);
         sUriMatcher.addURI(AUTHORITY, COMPLETED_TABLE + "/#", COMPLETED_TABLE_ROW_VALUE);
     }
 
@@ -68,6 +81,24 @@ public class MyContentProvider extends ContentProvider {
 
             case COMPLETED_TABLE_VALUE:
                 cursor = sqlDB.query(COMPLETED_TABLE, null,null,null,null,null,null);
+                cursor.setNotificationUri(getContext().getContentResolver(), uri);
+                return cursor;
+
+            case TODO_REMOTE_VALUE:
+                try {
+                    Log.d("App", "In content provider, todo remote value");
+                    cursor = new AsyncPostTodo().execute().get();
+                    cursor.setNotificationUri(getContext().getContentResolver(), uri);
+                    return cursor;
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                }
+                return null;
+
+            case COMPLETED_REMOTE_VALUE:
+                cursor = sqlDB.query(COMPLETED_REMOTE_TABLE, null,null,null,null,null,null);
                 cursor.setNotificationUri(getContext().getContentResolver(), uri);
                 return cursor;
 
@@ -99,8 +130,15 @@ public class MyContentProvider extends ContentProvider {
                 break;
             case COMPLETED_TABLE_VALUE:
                 TABLE = COMPLETED_TABLE;
-                Log.d("App", "IDHAR CONTENTPROV ME!" + values);
                 id = sqlDB.insert(COMPLETED_TABLE, null, values);
+                break;
+            case COMPLETED_REMOTE_VALUE:
+                TABLE = COMPLETED_REMOTE_TABLE;
+                id = sqlDB.insert(COMPLETED_REMOTE_TABLE, null, values);
+                break;
+            case TODO_REMOTE_VALUE:
+                TABLE = TODO_REMOTE_TABLE;
+                id = sqlDB.insert(TODO_REMOTE_TABLE, null, values);
                 break;
             default:
                 throw new IllegalArgumentException("Unknown URI: " + uri);

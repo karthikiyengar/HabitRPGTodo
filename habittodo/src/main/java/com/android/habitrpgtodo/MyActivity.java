@@ -1,15 +1,15 @@
 package com.android.habitrpgtodo;
 
-import android.support.v7.app.ActionBarActivity;
-import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.app.ActionBar;
 import android.app.FragmentTransaction;
+import android.content.ContentResolver;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 import com.android.habitrpgtodo.adapters.TabsPagerAdapter;
+import com.android.habitrpgtodo.provider.MyContentProvider;
 
 public class MyActivity extends FragmentActivity implements ActionBar.TabListener  {
 
@@ -23,8 +23,21 @@ public class MyActivity extends FragmentActivity implements ActionBar.TabListene
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
+
+        final String ACCOUNT_NAME = "MyApp";
+        final String ACCOUNT_TYPE = "habitrpg.com";
+
+        Account appAccount = new Account(ACCOUNT_NAME,ACCOUNT_TYPE);
+        AccountManager accountManager = AccountManager.get(getApplicationContext());
+        if (accountManager.addAccountExplicitly(appAccount, null, null)) {
+            ContentResolver.setIsSyncable(appAccount, MyContentProvider.AUTHORITY, 1);
+            ContentResolver.setMasterSyncAutomatically(true);
+            ContentResolver.setSyncAutomatically(appAccount, MyContentProvider.AUTHORITY, true);
+        }
+        ContentResolver.requestSync(appAccount, MyContentProvider.AUTHORITY, new Bundle());
 
         //Init
         viewPager = (ViewPager) findViewById(R.id.pager);
